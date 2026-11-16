@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Unicode Assignment Transformer &amp; PDF Studio</title>
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com/3.4.17"></script>
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@0.460.0/dist/umd/lucide.min.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+
+  <style>
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    }
+    .font-mono {
+      font-family: 'JetBrains Mono', monospace;
+    }
+    /* Switch toggle slider styling */
+    .switch-label {
+      position: relative;
+      display: inline-block;
+      width: 38px;
+      height: 20px;
+    }
+    .switch-label input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+    .switch-slider {
+      position: absolute;
+      cursor: pointer;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background-color: #334155;
+      transition: .25s ease;
+      border-radius: 9999px;
+    }
+    .switch-slider:before {
+      position: absolute;
+      content: "";
+      height: 14px;
+      width: 14px;
+      left: 3px;
+      bottom: 3px;
+      background-color: white;
+      transition: .25s ease;
+      border-radius: 50%;
+    }
+    input:checked + .switch-slider {
+      background-color: #6366f1;
+    }
+    input:checked + .switch-slider:before {
+      transform: translateX(18px);
+    }
+    /* Highlighted unicode character pill */
+    .hl-char {
+      background-color: rgba(245, 158, 11, 0.28);
+      color: #fef08a;
+      border: 1px solid rgba(245, 158, 11, 0.55);
+      border-radius: 3px;
+      padding: 0 2px;
+      font-weight: 700;
+      font-family: 'JetBrains Mono', monospace;
+      display: inline-block;
+      line-height: 1.1;
+      margin: 0 0.5px;
+    }
+    /* Scrollbar styling */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #0f172a;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #334155;
+      border-radius: 3px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #475569;
+    }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col bg-[#0b0f1a] text-slate-100 antialiased selection:bg-indigo-500 selection:text-white">
+
+  <!-- Header Navigation Bar -->
+  <header class="bg-[#111827] border-b border-slate-800 sticky top-0 z-40 shadow-sm shadow-black/40">
+    <div class="max-w-[1536px] mx-auto px-4 py-2.5 flex flex-wrap items-center justify-between gap-3">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-indigo-600 to-violet-500 flex items-center justify-center text-white font-bold shadow-md shadow-indigo-950/80">
+          <i data-lucide="sparkles" class="w-5 h-5"></i>
+        </div>
+        <div>
+          <div class="flex items-center gap-2">
+            <h1 class="text-base font-bold text-white tracking-tight">Assignment Unicode Transformer &amp; PDF Studio</h1>
+            <span class="text-[11px] font-semibold px-2.5 py-0.5 rounded-full bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 flex items-center gap-1">
+              <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+              Layout-Preserving Engine
+            </span>
+          </div>
+          <p class="text-[11px] text-slate-400">Transform English assignments with selective Unicode homoglyphs (l, k, d, e, p, q) • 100% Original Formatting, Logos &amp; Tables Preserved</p>
+        </div>
+      </div>
+
+      <!-- Quick Actions & Weekly Target Counter -->
+      <div class="flex items-center gap-3 flex-wrap">
+        <div class="bg-[#1a2234] border border-slate-700/80 rounded-xl px-3 py-1.5 flex items-center gap-3 shadow-inner">
+          <div>
+            <div class="flex items-center justify-between gap-3 text-[11px]">
+              <span class="text-slate-400 font-medium">Weekly 100 Batch Goal</span>
+              <span id="weeklyCounterLabel" class="font-bold text-emerald-400">0 / 100 PDFs</span>
+            </div>
+            <div class="w-32 h-1.5 bg-slate-800 rounded-full overflow-hidden mt-1">
+              <div id="weeklyProgressBar" class="h-full bg-emerald-500 rounded-full transition-all duration-300" style="width: 0%"></div>
+            </div>
+          </div>
+          <button id="resetWeeklyBtn" type="button" title="Reset Weekly Counter" class="text-slate-400 hover:text-white p-1 rounded hover:bg-slate-700/60 transition">
+            <i data-lucide="rotate-ccw" class="w-3.5 h-3.5"></i>
+          </button>
+        </div>
+
+        <button id="loadSampleBtn" type="button" class="inline-flex items-center gap-1.5 text-xs font-semibold px-3 py-2 rounded-xl bg-indigo-600/20 text-indigo-300 border border-indigo-500/40 hover:bg-indigo-600/30 hover:border-indigo-500 transition shadow-sm">
+          <i data-lucide="file-check" class="w-4 h-4 text-indigo-400"></i>
+          <span>Load Unit 1 Sample (.docx)</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Container -->
+  <main class="flex-1 max-w-[1536px] w-full mx-auto px-3 sm:px-4 py-4 grid grid-cols-1 lg:grid-cols-12 gap-4">
+
+    <!-- LEFT PANEL: Controls & Settings (4 cols on lg) -->
+    <aside class="lg:col-span-4 flex flex-col gap-3.5">
+
+      <!-- Card 1: Upload .DOCX (Single or Batch up to 100) -->
+      <div class="bg-[#131a2b] border border-slate-800 rounded-2xl p-4 flex flex-col gap-3 shadow-sm">
+        <div class="flex items-center justify-between">
+          <span class="text-xs font-bold uppercase tracking-wider text-slate-300 flex items-center gap-1.5">
+            <i data-lucide="folder-up" class="w-4 h-4 text-indigo-400"></i>
+            1. Upload Assignment .DOCX
+          </span>
+          <span id="queueCountBadge" class="text-[11px] font-semibold text-indigo-400 bg-indigo-500/10 px-2 py-0.5 rounded-full border border-indigo-500/20">0 files loaded</span>
+        </div>
+
+        <!-- Drop Zone -->
+        <label id="dropZone" for="fileInput" class="cursor-pointer border-2 border-dashed border-slate-700 hover:border-indigo-500 bg-[#0d1322] hover:bg-indigo-950/20 rounded-xl p-4 text-center transition flex flex-col items-center justify-center group">
+          <i data-lucide="upload-cloud" class="w-7 h-7 text-indigo-400 mb-1.5 group-hover:scale-110 transition-transform"></i>
+          <p class="text-xs font-semibold text-slate-200">Drop <span class="text-indigo-400 font-bold">.docx</span> assignment(s) here or click to browse</p>
+          <p class="text-[11px] text-slate-400 mt-0.5">Supports single assignment or bulk batch upload (up to 100 files at once)</p>
+          <input type="file" id="fileInput" accept=".docx,application/vnd.openxmlformats-officedocument.wordprocessingml.document" multiple class="hidden" />
+        </label>
+
+        <!-- Document Queue List -->
+        <div id="queueSection" class="flex flex-col gap-1.5">
+          <div class="flex items-center justify-between text-[11px] text-slate-400">
+            <span>Uploaded Files (Click to inspect)</span>
+            <button id="clearQueueBtn" type="button" class="text-rose-400 hover:text-rose-300 font-semibold hover:underline">Clear All</button>
+          </div>
+          <div id="fileQueueList" class="max-h-36 overflow-y-auto divide-y divide-slate-800/80 bg-[#0b0f1a] border border-slate-800 rounded-xl p-1">
+            <div class="text-slate-500 text-xs text-center py-4 italic">No files in queue yet. Upload or click "Load Unit 1 Sample".</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Card 2: Cover Sheet & Scope Controls -->
+      <div class="bg-[#131a2b] border border-slate-800 rounded-2xl p-4 flex flex-col gap-3 shadow-sm">
+        <span class="text-xs font-bold uppercase tracking-wider text-slate-300 flex items-center gap-1.5">
+          <i data-lucide="layers" class="w-4 h-4 text-indigo-400"></i>
+          2. Formatting &amp; Scope Controls
+        </span>
+
+        <div>
+          <label for="coverScopeSelect" class="block text-[11px] font-medium text-slate-400 mb-1">Cover Sheet &amp; Document Scope:</label>
+          <select id="coverScopeSelect" class="w-full bg-[#0b0f1a] border border-slate-700 rounded-xl px-3 py-2 text-xs text-slate-100 font-medium focus:outline-none focus:border-indigo-500">
+            <option value="remove_cover" selected>✂️ Only Introduction &amp; Below (Remove Cover Page &amp; TOC)</option>
+            <option value="keep_untouched">Keep Cover Sheet Untouched • Apply Unicode to Body Only</option>
+            <option value="entire_doc">Apply Unicode to Entire Document (Cover Sheet + Body)</option>
+          </select>
+        </div>
+
+        <div class="flex flex-col gap-2 pt-1 border-t border-slate-800/80 text-xs">
+          <div class="flex items-center justify-between">
+            <div>
+              <span class="text-slate-200 text-xs font-medium block">Remove Report Page Numbers</span>
+              <span class="text-[10px] text-slate-400">Hides "6 | Page" &amp; all footer page numbers from the output PDF</span>
+            </div>
+            <label class="switch-label">
+              <input type="checkbox" id="removePageNumbersToggle" checked />
+              <span class="switch-slider"></span>
+            </label>
+          </div>
+
+          <div class="flex items-center justify-between pt-1">
+            <div>
+              <span class="text-slate-200 text-xs font-medium block">Skip Web URLs (Bibliography &amp; References)</span>
+              <span class="text-[10px] text-slate-400">Preserves http://, https://, and www links without breaking characters</span>
+            </div>
+            <label class="switch-label">
+              <input type="checkbox" id="skipUrlsToggle" checked />
+              <span class="switch-slider"></span>
+            </label>
+          </div>
+
+          <div class="flex items-center justify-between pt-1">
+            <div>
+              <span class="text-slate-200 text-xs font-medium block">Skip Main Headings</span>
+              <span class="text-[10px] text-slate-400">Keep Heading 1, 2, Introduction &amp; Task headings in standard English</span>
+            </div>
+            <label class="switch-label">
+              <input type="checkbox" id="skipHeadingsToggle" />
+              <span class="switch-slider"></span>
+            </label>
+          </div>
+        </div>
+
+        <!-- Optional Custom Marker Section -->
+        <details class="bg-[#0b0f1a] border border-slate-800 rounded-xl px-3 py-2">
+          <summary class="cursor-pointer text-xs font-medium text-slate-400 hover:text-slate-200 select-none">⚙️ Custom Body Start Marker (Optional)</summary>
+          <div class="mt-2 flex flex-col gap-1.5">
+            <span class="text-[10px] text-slate-400">Auto-detects "Introduction" or "Task 1". Specify a custom start keyword if needed:</span>
+            <input type="text" id="customMarkerInput" placeholder="e.g. Introduction: or Chapter 1" class="bg-[#070a12] border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs text-white focus:outline-none focus:border-indigo-500" />
+          </div>
+        </details>
+      </div>
+
+      <!-- Card 3: Unicode Character Replacements Matrix -->
+      <div class="bg-[#131a2b] border border-slate-800 rounded-2xl p-4 flex flex-col gap-3 shadow-sm">
+        <div class="flex items-center justify-between gap-2">
+          <span class="text-xs font-bold uppercase tracking-wider text-slate-300 flex items-center gap-1.5">
+            <i data-lucide="replace" class="w-4 h-4 text-indigo-400"></i>
+            3. Character Replacements
+          </span>
+          <button id="applyPreviewBtn" type="button" class="px-3.5 py-1.5 rounded-full bg-indigo-600 hover:bg-indigo-500 text-white font-semibold text-xs shadow-sm transition flex items-center gap-1">
+            <i data-lucide="zap" class="w-3.5 h-3.5"></i>
+            <span>Apply &amp; Preview</span>
+          </button>
+        </div>
+
+        <!-- Preset Buttons -->
+        <div class="flex items-center gap-1.5 flex-wrap">
+          <button id="presetDefault6Btn" type="button" class="px-2.5 py-1 rounded-lg bg-indigo-600/20 border border-indigo-500/40 text-indigo-300 text-[11px] font-semibold hover:bg-indigo-600/30 transition">
+            Default 6 (l, k, d, e, p, q)
+          </button>
+          <button id="presetExtendedBtn" type="button" class="px-2.5 py-1 rounded-lg bg-slate-800 border border-slate-700 text-slate-300 text-[11px] font-semibold hover:bg-slate-700 transition">
+            + Extended (a, c, o, s, y, x)
+          </button>
+          <button id="presetNoneBtn" type="button" class="px-2.5 py-1 rounded-lg bg-slate-800 border border-slate-700 text-slate-400 text-[11px] font-semibold hover:bg-slate-700 transition">
+            Uncheck All
+          </button>
+        </div>
+
+        <!-- Rules Table -->
+        <div class="max-h-56 overflow-y-auto border border-slate-800 rounded-xl bg-[#0b0f1a] px-2.5 py-1">
+          <table class="w-full text-left border-collapse text-xs">
+            <thead>
+              <tr class="border-b border-slate-800 text-[10px] uppercase text-slate-400">
+                <th class="py-2">On</th>
+                <th class="py-2">Char</th>
+                <th class="py-2"></th>
+                <th class="py-2">Unicode</th>
+                <th class="py-2">Code</th>
+                <th class="py-2 text-right">Count</th>
+                <th class="py-2"></th>
+              </tr>
+            </thead>
+            <tbody id="rulesTableBody" class="divide-y divide-slate-800/60 font-mono text-xs"></tbody>
+          </table>
+        </div>
+
+        <!-- Add Custom Character Rule -->
+        <div class="flex items-center gap-1.5 pt-1">
+          <span class="text-xs text-slate-400 font-medium">➕ Custom:</span>
+          <input type="text" id="customFindInput" placeholder="char" maxlength="2" class="bg-[#0b0f1a] border border-slate-700 rounded-lg px-2 py-1.5 text-xs text-center font-mono text-white w-14 focus:outline-none focus:border-indigo-500" />
+          <span class="text-slate-500 text-xs">→</span>
+          <input type="text" id="customReplaceInput" placeholder="unicode" maxlength="2" class="bg-[#0b0f1a] border border-slate-700 rounded-lg px-2 py-1.5 text-xs text-center font-mono text-white w-16 focus:outline-none focus:border-indigo-500" />
+          <button id="addCustomRuleBtn" type="button" class="ml-auto px-3 py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold transition">Add Rule</button>
+        </div>
+      </div>
+
+    </aside>
+
+    <!-- RIGHT PANEL: Live Preview & Export Studio (8 cols on lg) -->
+    <section class="lg:col-span-8 flex flex-col gap-3 bg-[#131a2b] border border-slate-800 rounded-2xl p-4 shadow-sm">
+
+      <!-- Action Toolbar -->
+      <div class="flex flex-wrap items-center justify-between gap-2 pb-3 border-b border-slate-800">
+        <div class="flex flex-wrap items-center gap-2">
+          <!-- Primary Action: Download Selectable PDF -->
+          <button id="downloadPdfBtn" type="button" class="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs shadow-md shadow-emerald-950/60 flex items-center gap-1.5 transition">
+            <i data-lucide="file-down" class="w-4 h-4"></i>
+            <span>Download Selectable PDF</span>
+          </button>
+
+          <!-- Batch Convert All to ZIP -->
+          <button id="batchZipBtn" type="button" class="px-3.5 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-semibold text-xs shadow-sm flex items-center gap-1.5 transition" title="Batch convert all queued assignments into a single ZIP">
+            <i data-lucide="package-check" class="w-4 h-4"></i>
+            <span>Batch All → ZIP</span>
+          </button>
+
+          <!-- Download Modified DOCX -->
+          <button id="downloadDocxBtn" type="button" class="px-3 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 font-semibold text-xs flex items-center gap-1.5 transition">
+            <i data-lucide="file-text" class="w-3.5 h-3.5 text-indigo-400"></i>
+            <span>Download .DOCX</span>
+          </button>
+
+          <!-- Copy Clean Text -->
+          <button id="copyTextBtn" type="button" class="px-3 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-300 font-semibold text-xs flex items-center gap-1 transition">
+            <i data-lucide="copy" class="w-3.5 h-3.5 text-emerald-400"></i>
+            <span>Copy Text</span>
+          </button>
+        </div>
+
+        <div id="statusBadge" class="text-xs font-semibold px-2.5 py-1 rounded-lg bg-indigo-500/10 text-indigo-300 border border-indigo-500/20">
+          Ready to transform
+        </div>
+      </div>
+
+      <!-- View Tabs & Controls -->
+      <div class="flex flex-wrap items-center justify-between gap-2">
+        <div class="flex items-center gap-1 bg-[#0b0f1a] p-1 rounded-xl border border-slate-800">
+          <button id="tabDiffView" type="button" class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-indigo-600 text-white transition flex items-center gap-1.5">
+            <i data-lucide="highlighter" class="w-3.5 h-3.5"></i>
+            <span>Highlighted Text Diff</span>
+          </button>
+          <button id="tabPdfView" type="button" class="px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-400 hover:text-white transition flex items-center gap-1.5">
+            <i data-lucide="file-text" class="w-3.5 h-3.5"></i>
+            <span>Original Layout PDF Preview</span>
+          </button>
+          <button id="tabRawView" type="button" class="px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-400 hover:text-white transition flex items-center gap-1.5">
+            <i data-lucide="align-left" class="w-3.5 h-3.5"></i>
+            <span>Clean Text View</span>
+          </button>
+        </div>
+
+        <div class="flex items-center gap-3">
+          <label class="inline-flex items-center gap-2 cursor-pointer text-xs text-slate-300 select-none">
+            <input type="checkbox" id="highlightToggle" checked class="rounded text-amber-500 focus:ring-amber-500" />
+            <span>Highlight Replaced Chars (<span class="font-mono text-amber-400 font-bold">ӏ κ ԁ е р զ</span>)</span>
+          </label>
+        </div>
+      </div>
+
+      <!-- Batch Progress Banner -->
+      <div id="batchProgressCard" class="hidden p-3.5 rounded-xl bg-indigo-950/70 border border-indigo-500/40">
+        <div class="flex items-center justify-between text-xs font-semibold text-indigo-200 mb-1.5">
+          <span id="batchProgressStatus">Processing batch assignments...</span>
+          <span id="batchProgressPercent" class="font-mono">0%</span>
+        </div>
+        <div class="w-full h-2 bg-slate-800 rounded-full overflow-hidden">
+          <div id="batchProgressBar" class="h-full bg-indigo-500 transition-all duration-300" style="width: 0%"></div>
+        </div>
+      </div>
+
+      <!-- Main Preview Scroll Container -->
+      <div id="previewScrollArea" class="flex-1 bg-[#070a12] border border-slate-800 rounded-xl p-4 sm:p-6 overflow-y-auto min-h-[460px] max-h-[640px]">
+
+        <!-- View 1: Highlighted Diff View -->
+        <div id="diffViewContainer" class="flex flex-col gap-3 text-xs leading-relaxed text-slate-200 font-sans">
+          <div class="text-slate-500 italic text-center py-20">
+            Upload an assignment or click <strong class="text-indigo-400">"Load Unit 1 Sample (.docx)"</strong> to view live preview with highlighted Unicode replacements.
+          </div>
+        </div>
+
+        <!-- View 2: High-Resolution Real Vector PDF Page Render -->
+        <div id="pdfViewContainer" class="hidden flex flex-col items-center gap-6 py-2"></div>
+
+        <!-- View 3: Clean Plain Text View -->
+        <div id="rawViewContainer" class="hidden font-mono text-xs leading-relaxed whitespace-pre-wrap text-slate-300 p-2"></div>
+
+      </div>
+
+      <!-- Stats Summary Footer -->
+      <div id="statsFooter" class="flex flex-wrap items-center justify-between gap-3 pt-2 text-xs text-slate-400 border-t border-slate-800">
+        <div class="flex flex-wrap items-center gap-4">
+          <span>File: <strong id="statsFileName" class="text-slate-200">—</strong></span>
+          <span>Words: <strong id="statsWordCount" class="text-white">0</strong></span>
+          <span>Unicode Replacements: <strong id="statsTotalRepl" class="text-emerald-400 font-bold">0</strong></span>
+          <span>Scope: <strong id="statsCoverMode" class="text-indigo-300">Untouched Cover Sheet</strong></span>
+        </div>
+        <div id="charCountsBadges" class="flex items-center gap-1.5 flex-wrap"></div>
+      </div>
+
+    </section>
+
+  </main>
+
+  <!-- Notification Toast -->
+  <div id="toast" class="fixed bottom-5 left-1/2 -translate-x-1/2 z-50 pointer-events-none transition-all duration-300 opacity-0 transform translate-y-3">
+    <div id="toastInner" class="bg-indigo-600 text-white text-xs font-semibold px-4 py-2.5 rounded-xl shadow-lg border border-indigo-400/40 flex items-center gap-2">
+      <i data-lucide="check-circle" class="w-4 h-4"></i>
+      <span id="toastMsg">Notification message</span>
+    </div>
+  </div>
+
+  <script src="/static/js/app.js"></script>
+</body>
+</html>

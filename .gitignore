@@ -1,0 +1,10 @@
+storage/uploads/*
+storage/outputs/*
+!storage/uploads/.gitkeep
+!storage/outputs/.gitkeep
+__pycache__/
+*.pyc
+*.log
+cloudflared.exe
+.env
+.venv/
