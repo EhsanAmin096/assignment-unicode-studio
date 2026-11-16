@@ -358,5 +358,15 @@ async def download_file(file_id: str, ftype: str):
     else:
         raise HTTPException(status_code=400, detail="Invalid file type")
 
+# Gradio compatibility wrapper for Hugging Face Spaces deployment
+try:
+    import gradio as gr
+    with gr.Blocks(title="Assignment Unicode Transformer & PDF Studio", css="footer {display: none !important;}") as demo:
+        pass
+    demo.app.router.routes = app.router.routes + demo.app.router.routes
+except Exception:
+    demo = None
+
 if __name__ == "__main__":
-    uvicorn.run("app:app", host="0.0.0.0", port=8080, reload=True)
+    port = int(os.environ.get("PORT", 8080))
+    uvicorn.run("app:app", host="0.0.0.0", port=port, reload=True)
