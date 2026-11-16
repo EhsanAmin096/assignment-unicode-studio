@@ -1,22 +1,25 @@
 @echo off
-title Unicode Studio - Online Public Link
+title Unicode Studio - Direct Public Online Link
 cd /d "%~dp0"
 cls
 echo =====================================================================
-echo    UNICODE STUDIO - ONLINE LINK (DIFFERENT WI-FI / INTERNET)
+echo    UNICODE STUDIO - DIRECT PUBLIC ONLINE LINK (ZERO SETUP)
 echo =====================================================================
 echo.
 echo Connecting to secure online tunnel...
+echo (Is window ko band mat kijiyega, minimize kar ke rakh dein)
 echo.
-echo [!] NOTE: Is black window ko khula rehne dein (minimize kar lein).
-echo Neechay jo "https://...pinggy-free.link" aye ga, woh link dost ko bhej dein.
-echo Dost jab link kholega to sirf aik baar "Enter site" par click kare ga,
-echo aur aap ki poori Assignment Studio app uske paas chal pare gi!
+echo =====================================================================
+echo Neechay jo "https://xxxx.app.lhr.life" link aye ga:
+echo Woh link copy kar ke kisi ko bhi bhej dein!
+echo.
+echo [!] Kisi ko kuch bhi install karne ki zaroorat nahi hai.
+echo Link par click karte hi direct poori app khul jaye gi!
 echo =====================================================================
 echo.
 
-ssh -p 443 -R0:localhost:8080 -o StrictHostKeyChecking=no a.pinggy.io
+ssh -R 80:127.0.0.1:8080 -o StrictHostKeyChecking=no nokey@localhost.run
 
 echo.
-echo Tunnel band ho gaya hai.
+echo Tunnel band ho gaya hai. Dobara chalane ke liye koi bhi key dabayein...
 pause
