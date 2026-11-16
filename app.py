@@ -359,6 +359,15 @@ async def download_file(file_id: str, ftype: str):
     else:
         raise HTTPException(status_code=400, detail="Invalid file type")
 
+# ZeroGPU compatibility for Hugging Face Spaces
+try:
+    import spaces
+    @spaces.GPU
+    def dummy_gpu_init():
+        return True
+except Exception:
+    pass
+
 # Gradio compatibility wrapper for Hugging Face Spaces deployment
 try:
     import gradio as gr
