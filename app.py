@@ -77,6 +77,7 @@ class BatchProcessRequest(BaseModel):
     include_docx: bool = True
 
 @app.get("/", response_class=HTMLResponse)
+@app.get("/app-view", response_class=HTMLResponse)
 async def serve_index():
     index_file = os.path.join(STATIC_DIR, "index.html")
     if os.path.exists(index_file):
@@ -361,12 +362,18 @@ async def download_file(file_id: str, ftype: str):
 # Gradio compatibility wrapper for Hugging Face Spaces deployment
 try:
     import gradio as gr
-    with gr.Blocks(title="Assignment Unicode Transformer & PDF Studio", css="footer {display: none !important;}") as demo:
-        pass
+    with gr.Blocks(title="Assignment Unicode Transformer & PDF Studio") as demo:
+        gr.HTML('<iframe src="/app-view" style="position:fixed; top:0; left:0; width:100%; height:100%; border:none; z-index:99999;"></iframe>')
+    demo.app.mount("/app-view", app)
+    demo.app.mount("/api", app)
+    demo.app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")
     demo.app.router.routes = app.router.routes + demo.app.router.routes
 except Exception:
     demo = None
 
 if __name__ == "__main__":
-    port = int(os.environ.get("PORT", 8080))
-    uvicorn.run("app:app", host="0.0.0.0", port=port, reload=True)
+    port = int(os.environ.get("PORT", 7860))
+    if demo is not None:
+        demo.launch(server_name="0.0.0.0", server_port=port)
+    else:
+        uvicorn.run("app:app", host="0.0.0.0", port=port, reload=True)
