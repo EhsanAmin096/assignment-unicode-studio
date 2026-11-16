@@ -1,3 +1,14 @@
+---
+title: Assignment Unicode Studio
+emoji: 📄
+colorFrom: indigo
+colorTo: blue
+sdk: gradio
+sdk_version: 6.32.0
+app_file: app.py
+pinned: false
+---
+
 # Unicode Assignment Transformer & PDF Studio
 
 Ek mukammal Web App tool jo English `.docx` assignments par selective Unicode Homoglyph character replacements apply karta hai aur **100% original formatting, college logos, cover sheet tables, headers, footers, aur bibliography URLs ko bilkul kharab kiye baghair** authentic selectable-text PDF aur .docx files mein convert karta hai.
